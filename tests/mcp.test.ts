@@ -61,4 +61,27 @@ describe("MCP Tool Tests", () => {
             "Decrypted message should match the original message"
         )
     })
+
+    it("should list the encryption://info resource", async () => {
+        const { resources } = await client.listResources()
+        const info = resources.find(item => item.uri === "encryption://info");
+
+        assert.ok(info, "encryption://info resource should be present");
+    })
+
+    it("should return the encrypt_message_prompt", async () => {
+        const result = await client.getPrompt( {
+            name: "encrypt_message_prompt",
+            arguments: {
+                encryptedMessage: "Hello, World!",
+                encryptionKey: "my-secret-passphrase"
+            }
+        })
+        const item = result.messages.at(0)?.content as unknown as { type: "text", text: string };
+        assert.ok(
+            item.text.includes("encrypt_message"),
+            "Prompt should contain the encrypt_message tool"
+        );
+    })
+
 })
